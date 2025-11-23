@@ -99,13 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Impuestos Nacionales</title>
+    <title>Login - SOFÍA</title>
     <!-- VULNERABILIDAD: CDN sin integrity checks -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #D0021B 0%, #A00115 100%);
             min-height: 100vh;
             font-family: 'Arial', sans-serif;
         }
@@ -120,14 +120,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
-            max-width: 400px;
+            max-width: 450px;
             width: 100%;
         }
         .login-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #D0021B 0%, #A00115 100%);
             color: white;
-            padding: 30px;
+            padding: 40px;
             text-align: center;
+        }
+        .login-header h3 {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
         }
         .login-body {
             padding: 40px;
@@ -139,32 +145,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 20px;
         }
         .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: none;
+            border-color: #D0021B;
+            box-shadow: 0 0 0 0.2rem rgba(208, 2, 27, 0.25);
         }
         .btn-login {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #D0021B 0%, #A00115 100%);
             border: none;
             border-radius: 10px;
             padding: 12px;
             font-weight: bold;
             width: 100%;
             color: white;
+            transition: all 0.3s;
         }
         .btn-login:hover {
-            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #A00115 0%, #7a000f 100%);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(208, 2, 27, 0.3);
         }
         .alert {
             border-radius: 10px;
             margin-bottom: 20px;
         }
         .debug-info {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-size: 12px;
+            border-left: 4px solid #F7C600;
+        }
+        .back-link {
+            color: #D0021B;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -172,19 +190,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <h3><i class="fas fa-university me-2"></i>SIN</h3>
-                <p class="mb-0">Servicio de Impuestos Nacionales</p>
-                <small>Estado Plurinacional de Bolivia</small>
+                <h3>SOFÍA</h3>
+                <p class="mb-0">Sistema de Información Administrativa</p>
+                <small>Sociedad de Fomento a la Industria Automotriz</small>
             </div>
             <div class="login-body">
                 <!-- VULNERABILIDAD: información de debug visible -->
                 <?php if (isset($_GET['info'])): ?>
                     <div class="debug-info">
-                        <strong>Usuarios de prueba:</strong><br>
+                        <strong>👤 Usuarios de prueba:</strong><br>
+                        admin / admin123 (Administrador)<br>
                         demo / demo123 (Usuario)<br>
-                        admin / admin (Administrador)<br>
                         test / test123 (Usuario)<br>
-                        root / toor (Admin)
+                        root / root (Super Admin)
                     </div>
                 <?php endif; ?>
                 
@@ -205,14 +223,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <!-- VULNERABILIDAD: formulario sin token CSRF -->
                 <form method="POST" action="">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Usuario</label>
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-2"></i>Usuario
+                        </label>
                         <input type="text" class="form-control" id="username" name="username" 
                                placeholder="Ingrese su usuario" required
                                value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
                     </div>
                     
                     <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Contraseña
+                        </label>
                         <input type="password" class="form-control" id="password" name="password" 
                                placeholder="Ingrese su contraseña" required>
                     </div>
@@ -232,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 <div class="text-center mt-4">
                     <small class="text-muted">
-                        <a href="index.php" class="text-decoration-none">
+                        <a href="index.php" class="back-link">
                             <i class="fas fa-arrow-left me-1"></i>Volver al inicio
                         </a>
                     </small>
@@ -248,6 +270,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </small>
                     </div>
                 <?php endif; ?>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        💡 Añade <code>?info=1</code> para ver usuarios | 
+                        <code>?dev=1</code> para modo desarrollo
+                    </small>
+                </div>
             </div>
         </div>
     </div>
@@ -257,9 +286,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         // VULNERABILIDAD: datos sensibles en JavaScript
         const users = {
+            'admin': 'admin123',
             'demo': 'demo123',
-            'admin': 'admin',
-            'test': 'test123'
+            'test': 'test123',
+            'root': 'root'
         };
         
         // VULNERABILIDAD: función de auto-completar insegura
@@ -269,112 +299,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // VULNERABILIDAD: mostrar información en consola
-        console.log('Sistema de login cargado');
-        console.log('Usuarios disponibles:', Object.keys(users));
+        console.log('🔴 SOFÍA - Sistema cargado');
+        console.log('👤 Usuarios disponibles:', Object.keys(users));
+        console.log('⚠️ Versión vulnerable para auditoría');
         
         // VULNERABILIDAD: evento que muestra contraseñas
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-                alert('Usuarios: ' + JSON.stringify(users));
+                alert('🔓 Usuarios y contraseñas:\n' + JSON.stringify(users, null, 2));
             }
         });
+
+        // VULNERABILIDAD: Atajos de teclado para auto-completar
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey && e.key === 'a') {
+                autoFill('admin');
+            } else if (e.altKey && e.key === 'd') {
+                autoFill('demo');
+            }
+        });
+
+        console.log('💡 Tip: Ctrl+Shift+P para ver credenciales');
+        console.log('💡 Tip: Alt+A para auto-completar admin');
     </script>
-</body>
-</html>
-?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Impuestos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .login-container {
-            min-height: 100vh;
-        }
-        .login-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px 15px 0 0;
-        }
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-        }
-        .btn-login:hover {
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid login-container d-flex align-items-center justify-content-center">
-        <div class="row w-100 justify-content-center">
-            <div class="col-md-4 col-lg-3">
-                <div class="card login-card">
-                    <div class="card-header login-header text-center py-4">
-                        <h3 class="mb-0">
-                            <i class="fas fa-calculator me-2"></i>
-                            Sistema de Impuestos
-                        </h3>
-                        <p class="mb-0 mt-2">Iniciar Sesión</p>
-                    </div>
-                    <div class="card-body p-4">
-                        <?php if ($error_message): ?>
-                            <div class="alert alert-danger" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <?php echo htmlspecialchars($error_message); ?>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <form method="POST" action="">
-                            <div class="mb-3">
-                                <label for="username" class="form-label">
-                                    <i class="fas fa-user me-2"></i>Usuario
-                                </label>
-                                <input type="text" class="form-control" id="username" name="username" 
-                                       placeholder="Ingrese su usuario" required 
-                                       value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label for="password" class="form-label">
-                                    <i class="fas fa-lock me-2"></i>Contraseña
-                                </label>
-                                <input type="password" class="form-control" id="password" name="password" 
-                                       placeholder="Ingrese su contraseña" required>
-                            </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-login btn-lg text-white">
-                                    <i class="fas fa-sign-in-alt me-2"></i>
-                                    Iniciar Sesión
-                                </button>
-                            </div>
-                        </form>
-                        
-                        <div class="mt-4 text-center">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                Usuario demo: <strong>demo</strong> | Contraseña: <strong>demo123</strong>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

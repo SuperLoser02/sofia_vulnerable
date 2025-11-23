@@ -1,5 +1,7 @@
--- Inicialización de la base de datos impuestos_demo con VULNERABILIDADES INTENCIONADAS
+-- Inicialización de la base de datos sofias_demo con VULNERABILIDADES INTENCIONADAS
 -- ================================================================================
+-- SOFÍA - Sociedad de Fomento a la Industria Automotriz
+-- Base de datos vulnerable para proyecto de auditoría (PostgreSQL)
 
 -- Crear tabla de usuarios (VULNERABILIDAD: sin hash de contraseñas)
 CREATE TABLE IF NOT EXISTS users (
@@ -19,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_login TIMESTAMP NULL
 );
 
--- Crear tabla de contribuyentes (VULNERABILIDAD: datos sensibles sin encriptar)
+-- Crear tabla de empresas automotrices (VULNERABILIDAD: datos sensibles sin encriptar)
 CREATE TABLE IF NOT EXISTS taxpayers (
     id SERIAL PRIMARY KEY,
     nit VARCHAR(20) UNIQUE NOT NULL,
@@ -33,10 +35,10 @@ CREATE TABLE IF NOT EXISTS taxpayers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Crear tabla de declaraciones (VULNERABILIDAD: datos financieros sin protección)
+-- Crear tabla de registros automotrices (VULNERABILIDAD: datos financieros sin protección)
 CREATE TABLE IF NOT EXISTS tax_declarations (
     id SERIAL PRIMARY KEY,
-    taxpayer_id INTEGER REFERENCES taxpayers(id),
+    taxpayer_id INTEGER REFERENCES taxpayers(id) ON DELETE CASCADE,
     period VARCHAR(7), -- YYYY-MM
     gross_income DECIMAL(15,2),
     deductions DECIMAL(15,2),
@@ -45,53 +47,81 @@ CREATE TABLE IF NOT EXISTS tax_declarations (
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Crear tabla de vehículos registrados (nuevo para SOFÍA)
+CREATE TABLE IF NOT EXISTS vehicles (
+    id SERIAL PRIMARY KEY,
+    taxpayer_id INTEGER REFERENCES taxpayers(id) ON DELETE CASCADE,
+    vin VARCHAR(17) UNIQUE NOT NULL,
+    brand VARCHAR(50),
+    model VARCHAR(50),
+    year INTEGER,
+    color VARCHAR(30),
+    license_plate VARCHAR(15),
+    engine_number VARCHAR(50),
+    chassis_number VARCHAR(50),
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insertar usuarios demo (VULNERABILIDAD: contraseñas débiles y predecibles)
 INSERT INTO users (username, password, email, full_name, nit, ci, role) VALUES 
-('demo', 'demo123', 'demo@impuestos.gov.bo', 'Usuario Demo', '1234567890', '12345678', 'user'),
-('admin', 'admin', 'admin@impuestos.gov.bo', 'Administrador Sistema', '0987654321', '87654321', 'admin'),
-('usuario1', '123456', 'user1@empresa.bo', 'Juan Pérez García', '1122334455', '11223344', 'user'),
-('test', 'test', 'test@test.bo', 'Usuario Test', '5566778899', '55667788', 'user'),
-('auditoria', 'audit123', 'audit@impuestos.gov.bo', 'Auditor Sistemas', '9988776655', '99887766', 'auditor'),
-('guest', '', 'guest@impuestos.gov.bo', 'Usuario Invitado', '1111111111', '11111111', 'guest');
+('admin', 'admin123', 'admin@sofia.com.bo', 'Administrador SOFÍA', '1020304050', '12345678', 'admin'),
+('demo', 'demo123', 'demo@sofia.com.bo', 'Usuario Demostración', '2030405060', '23456789', 'user'),
+('juan.perez', 'password123', 'juan.perez@sofia.com.bo', 'Juan Carlos Pérez Mamani', '3040506070', '34567890', 'user'),
+('test', 'test123', 'test@sofia.com.bo', 'Usuario Prueba', '4050607080', '45678901', 'user'),
+('auditor', 'audit123', 'auditor@sofia.com.bo', 'Auditor Sistemas', '5060708090', '56789012', 'auditor'),
+('root', 'root', 'root@sofia.com.bo', 'Super Administrador', '6070809010', '67890123', 'admin'),
+('guest', '', 'guest@sofia.com.bo', 'Usuario Invitado', '7080901020', '78901234', 'guest');
 
--- Insertar contribuyentes con datos sensibles (VULNERABILIDAD: información real expuesta)
+-- Insertar empresas automotrices (VULNERABILIDAD: información real expuesta)
 INSERT INTO taxpayers (nit, business_name, legal_rep, activity, address, phone, email, tax_category) VALUES
-('20234567890', 'Empresa Boliviana LTDA', 'María Elena Quispe', 'Comercio General', 'Av. El Prado 123, La Paz', '2-2345678', 'info@empresaboliviana.bo', 'Régimen General'),
-('30345678901', 'Servicios Técnicos S.R.L.', 'Carlos Alberto Mamani', 'Servicios Técnicos', 'Calle Comercio 456, Santa Cruz', '3-3456789', 'contacto@servtecnicos.bo', 'Régimen Simplificado'),
-('40456789012', 'Industrias del Norte S.A.', 'Ana Lucía Condori', 'Manufactura', 'Zona Industrial Norte, El Alto', '2-4567890', 'ventas@industriasnorte.bo', 'Régimen General'),
-('50567890123', 'Transportes Rápidos EIRL', 'Roberto Ticona Flores', 'Transporte', 'Terminal de Buses, Cochabamba', '4-5678901', 'info@transportesrapidos.bo', 'Régimen Simplificado');
+('10234567890', 'Importadora Automotriz Bolivia S.A.', 'María Elena Quispe Condori', 'Importación de Vehículos', 'Av. Blanco Galindo Km 4, Cochabamba', '4-4123456', 'ventas@importadora.bo', 'Gran Contribuyente'),
+('20345678901', 'Concesionaria Premium Motors LTDA', 'Carlos Alberto Mamani Ticona', 'Venta de Vehículos Nuevos', 'Av. Cristo Redentor 1234, Santa Cruz', '3-3234567', 'contacto@premiummotors.bo', 'Régimen General'),
+('30456789012', 'Taller Mecánico El Experto SRL', 'Ana Lucía Condori Flores', 'Servicio Técnico Automotriz', 'Calle México 567, La Paz', '2-2345678', 'taller@elexperto.bo', 'Régimen Simplificado'),
+('40567890123', 'Repuestos Originales S.A.', 'Roberto Ticona Apaza', 'Venta de Repuestos', 'Zona Industrial, El Alto', '2-2456789', 'ventas@repuestos.bo', 'Régimen General'),
+('50678901234', 'Lubricantes y Servicios Express EIRL', 'Patricia Mamani Cruz', 'Cambio de Aceite y Lubricación', 'Av. Petrolera Km 3, Santa Cruz', '3-3567890', 'express@lubricantes.bo', 'Régimen Simplificado');
 
--- Insertar declaraciones con montos reales (VULNERABILIDAD: datos financieros sensibles)
+-- Insertar registros financieros (VULNERABILIDAD: datos financieros sensibles)
 INSERT INTO tax_declarations (taxpayer_id, period, gross_income, deductions, tax_amount, status) VALUES
-(1, '2024-01', 850000.50, 125000.75, 112500.85, 'approved'),
-(1, '2024-02', 920000.25, 138000.50, 121500.40, 'approved'),
-(2, '2024-01', 450000.00, 67500.00, 59625.00, 'pending'),
-(2, '2024-02', 520000.75, 78000.25, 68950.15, 'approved'),
-(3, '2024-01', 1250000.80, 187500.60, 165000.45, 'approved'),
-(3, '2024-02', 1180000.40, 177000.30, 156500.25, 'under_review'),
-(4, '2024-01', 680000.60, 102000.45, 89750.30, 'approved'),
-(4, '2024-02', 750000.90, 112500.80, 98875.55, 'pending');
-('admin', 'admin', 'admin@impuestos.gov.bo', 'Administrador SIN', '9876543210', '87654321', 'admin'),
-('sin_user', '12345', 'user@sin.gov.bo', 'Usuario SIN', '5555555555', '55555555', 'user'),
-('test', 'test123', 'test@test.com', 'Usuario Test', '1111111111', '11111111', 'user'),
-('root', 'toor', 'root@impuestos.gov.bo', 'Root User', '0000000000', '00000000', 'admin')
-ON CONFLICT (username) DO NOTHING;
+(1, '2024-01', 2850000.50, 285000.00, 427500.00, 'approved'),
+(1, '2024-02', 3120000.25, 312000.00, 468000.50, 'approved'),
+(2, '2024-01', 1450000.00, 145000.00, 217500.00, 'pending'),
+(2, '2024-02', 1620000.75, 162000.00, 243000.15, 'approved'),
+(3, '2024-01', 450000.80, 45000.00, 67500.45, 'approved'),
+(3, '2024-02', 480000.40, 48000.00, 72000.25, 'under_review'),
+(4, '2024-01', 980000.60, 98000.00, 147000.30, 'approved'),
+(4, '2024-02', 1050000.90, 105000.00, 157500.55, 'pending'),
+(5, '2024-01', 320000.50, 32000.00, 48000.25, 'approved'),
+(5, '2024-02', 380000.75, 38000.00, 57000.40, 'approved');
 
--- Insertar contribuyentes de ejemplo (VULNERABILIDAD: datos sin validación)
-INSERT INTO taxpayers (nit, business_name, legal_rep, activity, address, phone, email, tax_category) VALUES 
-('1234567890', 'Empresa Demo SA', 'Juan Pérez', 'Comercio', 'Av. 6 de Agosto #123, La Paz', '78912345', 'empresa@demo.com', 'Grande'),
-('9876543210', 'PYME Bolivia SRL', 'María García', 'Servicios', 'Calle Comercio #456, Santa Cruz', '76543210', 'info@pyme.bo', 'Mediana'),
-('5555555555', 'Microempresa Test', 'Carlos López', 'Manufactura', 'Zona Sur #789, Cochabamba', '65432109', 'micro@test.bo', 'Pequeña'),
-('0000000000', 'Empresa Vulnerable LTDA', 'Admin Root', 'Desarrollo', 'Calle Insegura #000', '00000000', 'vulnerable@hack.me', 'Test')
-ON CONFLICT (nit) DO NOTHING;
+-- Insertar vehículos registrados (VULNERABILIDAD: datos sin validación)
+INSERT INTO vehicles (taxpayer_id, vin, brand, model, year, color, license_plate, engine_number, chassis_number) VALUES
+(1, '1HGBH41JXMN109186', 'Toyota', 'Land Cruiser Prado', 2024, 'Blanco', '1234-ABC', 'LC-4521-2024', 'JT-8745-2024'),
+(1, '2FMDK3GC2BBB12345', 'Nissan', 'X-Trail', 2024, 'Gris', '2345-BCD', 'NS-7845-2024', 'NI-5632-2024'),
+(2, '3GNDA13D76S123456', 'Chevrolet', 'Tracker', 2023, 'Rojo', '3456-CDE', 'CH-4521-2023', 'GM-8965-2023'),
+(2, '4T1BF1FK8CU123456', 'Hyundai', 'Tucson', 2024, 'Negro', '4567-DEF', 'HY-7412-2024', 'HM-6523-2024'),
+(3, '5FNRL5H40BB123456', 'Honda', 'CR-V', 2023, 'Azul', '5678-EFG', 'HD-8523-2023', 'HN-9874-2023'),
+(4, '1G1ZD5ST8BF123456', 'Mazda', 'CX-5', 2024, 'Plata', '6789-FGH', 'MZ-7412-2024', 'MA-5632-2024'),
+(5, 'WBADT43452G123456', 'Suzuki', 'Vitara', 2023, 'Verde', '7890-GHI', 'SZ-4785-2023', 'SU-8521-2023');
 
--- Insertar declaraciones de ejemplo
-INSERT INTO tax_declarations (taxpayer_id, period, gross_income, deductions, tax_amount, status) VALUES 
-(1, '2024-12', 150000.00, 15000.00, 33750.00, 'approved'),
-(1, '2025-01', 180000.00, 18000.00, 40500.00, 'pending'),
-(2, '2024-12', 85000.00, 8500.00, 19125.00, 'approved'),
-(3, '2024-12', 25000.00, 2500.00, 5625.00, 'pending'),
-(4, '2024-12', 999999.99, 0.00, 249999.99, 'approved');
+-- Crear tabla de logs vulnerable (VULNERABILIDAD: información sensible en logs)
+CREATE TABLE IF NOT EXISTS system_logs (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    action TEXT,
+    details TEXT, -- VULNERABLE: detalles sin filtrar
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    sql_query TEXT, -- VULNERABLE: queries completas loggeadas
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insertar logs de ejemplo con información sensible
+INSERT INTO system_logs (user_id, action, details, ip_address, user_agent, sql_query) VALUES
+(1, 'login', 'Usuario admin logueado con contraseña: admin123', '192.168.1.100', 'Mozilla/5.0 Chrome', 'SELECT * FROM users WHERE username=''admin'' AND password=''admin123'''),
+(2, 'admin_access', 'Admin accedió a datos de vehículos', '10.0.0.5', 'Mozilla/5.0 Firefox', 'SELECT * FROM vehicles WHERE vin LIKE ''%123%'''),
+(3, 'error', 'Fallo de autenticación: password incorrecta password', '192.168.1.200', 'BadBot/1.0', 'SELECT * FROM users WHERE username=''juan.perez'' AND password=''password'''),
+(1, 'vehicle_registration', 'Registro de vehículo Toyota Land Cruiser VIN: 1HGBH41JXMN109186', '172.18.0.1', 'Docker Container', 'INSERT INTO vehicles VALUES (...)'),
+(2, 'financial_query', 'Consulta de ingresos mensuales - periodo 2024-01', '192.168.1.105', 'Mozilla/5.0 Safari', 'SELECT SUM(gross_income) FROM tax_declarations WHERE period=''2024-01''');
 
 -- Crear vista para consultas rápidas (VULNERABILIDAD: exposición de datos sensibles)
 CREATE OR REPLACE VIEW user_taxpayer_view AS
@@ -111,77 +141,30 @@ SELECT
 FROM users u
 LEFT JOIN taxpayers t ON u.nit = t.nit;
 
--- Crear función vulnerable para login (VULNERABILIDAD: SQL Injection)
-CREATE OR REPLACE FUNCTION vulnerable_login(username_input TEXT, password_input TEXT)
-RETURNS TABLE(user_id INTEGER, username TEXT, email TEXT, role TEXT) AS $$
-DECLARE
-    query_text TEXT;
-BEGIN
-    -- VULNERABILIDAD: concatenación directa sin sanitización
-    query_text := 'SELECT id, username, email, role FROM users WHERE username = ''' || username_input || ''' AND password = ''' || password_input || '''';
-    
-    -- VULNERABILIDAD: usar EXECUTE con query construida dinámicamente
-    RETURN QUERY EXECUTE query_text;
-END;
-$$ LANGUAGE plpgsql;
-
--- Crear función para búsqueda vulnerable (VULNERABILIDAD: exposición de datos)
-CREATE OR REPLACE FUNCTION search_users_vulnerable(search_term TEXT)
-RETURNS TABLE(id INTEGER, username TEXT, password TEXT, email TEXT, full_name TEXT, nit TEXT, role TEXT) AS $$
-BEGIN
-    -- VULNERABILIDAD: devolver contraseñas en búsquedas
-    RETURN QUERY EXECUTE 'SELECT id, username, password, email, full_name, nit, role FROM users WHERE username LIKE ''%' || search_term || '%'' OR email LIKE ''%' || search_term || '%''';
-END;
-$$ LANGUAGE plpgsql;
-
--- Crear tabla de logs vulnerable (VULNERABILIDAD: información sensible en logs)
-CREATE TABLE IF NOT EXISTS system_logs (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER,
-    action TEXT,
-    details TEXT, -- VULNERABLE: detalles sin filtrar
-    ip_address INET,
-    user_agent TEXT,
-    sql_query TEXT, -- VULNERABLE: queries completas loggeadas
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Insertar logs de ejemplo con información sensible
-INSERT INTO system_logs (user_id, action, details, ip_address, user_agent, sql_query) VALUES
-(1, 'login', 'Usuario demo logueado con contraseña: demo123', '192.168.1.100', 'Mozilla/5.0 Chrome', 'SELECT * FROM users WHERE username=''demo'' AND password=''demo123'''),
-(2, 'admin_access', 'Admin accedió a datos sensibles', '10.0.0.5', 'Mozilla/5.0 Firefox', 'SELECT * FROM taxpayers WHERE nit LIKE ''%123%'''),
-(1, 'error', 'Fallo de autenticación: password incorrecta 12345', '192.168.1.200', 'BadBot/1.0', 'SELECT * FROM users WHERE username=''demo'' AND password=''12345''');
-
--- VULNERABILIDAD: Crear usuario de base de datos con privilegios excesivos
--- (Se ejecutaría en la configuración real del servidor)
--- CREATE USER 'webapp'@'%' IDENTIFIED BY 'password123';
--- GRANT ALL PRIVILEGES ON impuestos_demo.* TO 'webapp'@'%';
-
--- VULNERABILIDAD: Comentarios con información sensible
--- Servidor de producción: 192.168.1.50
--- Usuario admin DB: postgres / password: admin123  
--- Backup server: backup.impuestos.gov.bo
--- API Key: AIzaSyB1234567890abcdef
--- Secret Token: sk_live_1234567890abcdef
-CREATE OR REPLACE FUNCTION login_user(user_input TEXT, pass_input TEXT)
-RETURNS TABLE(user_id INTEGER, username TEXT, role TEXT) AS $$
-BEGIN
-    -- VULNERABLE: concatenación directa sin sanitización
-    RETURN QUERY EXECUTE 'SELECT id, username, role FROM users WHERE username = ''' 
-                         || user_input || ''' AND password = ''' || pass_input || '''';
-END;
-$$ LANGUAGE plpgsql;
-
 -- Crear índices (algunos innecesarios para mostrar información)
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_password ON users(password); -- VULNERABLE: índice en contraseñas
 CREATE INDEX IF NOT EXISTS idx_taxpayers_nit ON taxpayers(nit);
+CREATE INDEX IF NOT EXISTS idx_vehicles_vin ON vehicles(vin);
 
--- Mostrar datos de ejemplo (VULNERABILIDAD: exposición de información)
-SELECT 'USUARIOS REGISTRADOS:' as info;
-SELECT username, password, email, role FROM users; -- VULNERABLE: muestra contraseñas
+-- ============================================
+-- VULNERABILIDADES IMPLEMENTADAS:
+-- ============================================
+-- 1. Contraseñas en texto plano
+-- 2. Nombres de usuario predecibles (admin, root, test)
+-- 3. Logs con información sensible sin cifrar (contraseñas visibles)
+-- 4. Datos de vehículos y empresas expuestos
+-- 5. Sin validación de complejidad de contraseñas
+-- 6. Usuario root/admin con contraseñas obvias
+-- 7. Vista con contraseñas expuestas
+-- 8. Índice en columna de contraseñas
+-- 9. Sin encriptación de datos sensibles (VIN, Chassis)
+-- 10. Emails y teléfonos sin validación
 
-SELECT 'CONTRIBUYENTES REGISTRADOS:' as info;
-SELECT nit, business_name, legal_rep, email, tax_category FROM taxpayers;
-
-SELECT 'SISTEMA LISTO - CONTIENE VULNERABILIDADES INTENCIONADAS PARA AUDITORÍA' as status;
+-- VULNERABILIDAD: Comentarios con información sensible
+-- Servidor de producción SOFÍA: 10.50.10.100
+-- Usuario admin DB: admin / password: admin123
+-- Backup server: backup.sofia.com.bo
+-- API Key Mapbox: pk_live_SOFIA1234567890abcdef
+-- Secret Token Autenticación: sk_sofia_1234567890abcdef
+-- FTP Credentials: ftp.sofia.com.bo user: sofia_ftp pass: ftp2024
