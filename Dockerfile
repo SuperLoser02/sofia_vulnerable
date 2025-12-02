@@ -18,5 +18,16 @@ COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html
 
-# Exponer puerto 80
-EXPOSE 80
+# Render define automáticamente la variable PORT
+ENV PORT=8080
+
+# Cambiar Apache para que escuche en $PORT en vez de 80
+RUN sed -i "s/80/${PORT}/g" /etc/apache2/ports.conf \
+ && sed -i "s/:80/:${PORT}/g" /etc/apache2/sites-available/000-default.conf
+
+# Exponer el puerto que Render espera
+EXPOSE 8080
+
+# Iniciar Apache
+CMD ["apache2-foreground"]
+
