@@ -19,10 +19,11 @@ class Database {
 
     public function __construct() {
         // VULNERABILIDAD: credenciales hardcodeadas y débiles
-        $this->host = $_ENV['DB_HOST'] ?? 'db';
-        $this->db_name = $_ENV['DB_NAME'] ?? 'sofias_demo';
-        $this->username = $_ENV['DB_USER'] ?? 'admin';
-        $this->password = $_ENV['DB_PASS'] ?? 'admin';
+        $this->host = getenv('DB_HOST') ?: 'db';
+        $this->db_name = getenv('DB_NAME') ?: 'sofias_demo';
+        $this->username = getenv('DB_USER') ?: 'admin';
+        $this->password = getenv('DB_PASS') ?: 'admin';
+
         
         // VULNERABILIDAD: mostrar credenciales en comentarios/debug
         if (isset($_GET['debug_db'])) {
