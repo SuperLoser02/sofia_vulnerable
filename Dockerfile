@@ -11,23 +11,25 @@ RUN a2enmod rewrite
 # Establecer el directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar archivos de configuración de Apache si es necesario
+# Copiar código fuente (IMPORTANTE)
+COPY ./src/ /var/www/html/
+
+# Copiar configuración de Apache
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
-# Cambiar permisos
-RUN chown -R www-data:www-data /var/www/html
-RUN chmod -R 755 /var/www/html
+# Permisos
+RUN chown -R www-data:www-data /var/www/html \
+ && chmod -R 755 /var/www/html
 
-# Render define automáticamente la variable PORT
+# Render define automáticamente el puerto en $PORT
 ENV PORT=8080
 
-# Cambiar Apache para que escuche en $PORT en vez de 80
+# Configurar Apache para escuchar en $PORT
 RUN sed -i "s/80/${PORT}/g" /etc/apache2/ports.conf \
  && sed -i "s/:80/:${PORT}/g" /etc/apache2/sites-available/000-default.conf
 
-# Exponer el puerto que Render espera
+# Exponer puerto
 EXPOSE 8080
 
-# Iniciar Apache
+# Iniciar apache
 CMD ["apache2-foreground"]
-
